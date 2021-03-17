@@ -1,0 +1,15 @@
+<div align="center" class="p-4">
+  <%= simple_form_for @image do |f| %>
+    <div class="p-4">
+<!-- TODO: URL Validation-->
+      <%= f.label "Image URL" %> <br/>
+      <%= f.input_field :link%>
+    </div>
+    <div class="p-4">
+      <%= f.button :submit %>
+    </div>
+    <div id="error_message" align="center">
+      <%= @error_message %>
+    </div>
+  <% end %>
+</div>
