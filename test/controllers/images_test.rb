@@ -41,4 +41,18 @@ class ImagesControllerTest < ActionDispatch::IntegrationTest
       assert_equal image_url, Image.last.link
     end
   end
+
+  def test_index
+    Image.create(link: 'https://www.appfolio.com/_nuxt/img/markets-residential@2x_1080px-min.ae96531.png')
+    image1 = Image.create(link: 'https://www.appfolio.com/_nuxt/img/product-communication-and-service_480px-min.4111e75.png')
+
+    get root_path
+
+    assert_response :success
+    assert_select 'img', count: 2 do |image|
+      assert_equal image1.link, image[0][:src]
+    end
+    assert_select 'h3', text: 'Image Sharer'
+    assert_select 'a[href=?]', '/images/new'
+  end
 end
