@@ -1,9 +1,10 @@
 <div align="center" class="p-4">
-  <%= simple_form_for @image do |f| %>
-    <div class="p-4">
-<!-- TODO: URL Validation-->
+  <%= simple_form_for @image, defaults: { input_html: { class: 'mt-4 p-2 col-sm-6' } } do |f| %>
+    <div class="m-2 p-4">
       <%= f.label "Image URL" %> <br/>
-      <%= f.input_field :link%>
+      <%= f.input_field :link, placeholder: 'Image URL' %>
+      <br/>
+      <%= f.input_field :tag_list, placeholder: 'Tags(comma separated)' %>
     </div>
     <div class="p-4">
       <%= f.button :submit %>
