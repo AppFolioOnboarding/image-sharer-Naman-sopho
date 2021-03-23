@@ -1,3 +1,8 @@
 <div align="center" class="p-4">
-  <img src="<%= @image.link %>"/>
+  <img class="p-4" src="<%= @image.link %>"/>
+  <div>
+    <% @image.tag_list.each do |tag| %>
+      <span><%=tag%></span>
+    <% end %>
+  </div>
 </div>

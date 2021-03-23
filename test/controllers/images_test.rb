@@ -13,7 +13,7 @@ class ImagesControllerTest < ActionDispatch::IntegrationTest
   def test_create
     image_url = 'https://www.appfolio.com/_nuxt/img/markets-residential@2x_1080px-min.ae96531.png'
     assert_difference 'Image.count' do
-      post images_path, params: { image: { link: image_url } }
+      post images_path, params: { image: { link: image_url} }
       assert_redirected_to image_path(Image.last)
     end
   end
@@ -34,12 +34,64 @@ class ImagesControllerTest < ActionDispatch::IntegrationTest
     end
   end
 
+  def test_create__with_tags
+    image_url = 'https://www.appfolio.com/_nuxt/img/markets-residential@2x_1080px-min.ae96531.png'
+    tags_list = %w[tag1 tag2]
+    tags_list_input = 'tag1,tag2'
+
+    assert_difference 'Image.count' do
+      post images_path, params: { image: { link: image_url, tag_list: tags_list_input } }
+      assert_equal tags_list, Image.last.tag_list
+      assert_redirected_to image_path(Image.last)
+    end
+  end
+
+  def test_create__invalid_tag_just_space
+    image_url = 'https://www.appfolio.com/_nuxt/img/markets-residential@2x_1080px-min.ae96531.png'
+    tags_list = []
+    tags_list_input = ' '
+
+    assert_difference 'Image.count' do
+      post images_path, params: { image: { link: image_url, tag_list: tags_list_input } }
+      assert_equal tags_list, Image.last.tag_list
+      assert_redirected_to image_path(Image.last)
+    end
+  end
+
+  def test_create__tags_with_space
+    image_url = 'https://www.appfolio.com/_nuxt/img/markets-residential@2x_1080px-min.ae96531.png'
+    tags_list = %w[tag1 tag2 tag3]
+    tags_list_input = 'tag1, tag2,tag3'
+
+    assert_difference 'Image.count' do
+      post images_path, params: { image: { link: image_url, tag_list: tags_list_input } }
+      assert_equal tags_list, Image.last.tag_list
+      assert_redirected_to image_path(Image.last)
+    end
+  end
+
   def test_show
     image_url = 'https://www.appfolio.com/_nuxt/img/markets-residential@2x_1080px-min.ae96531.png'
-    assert_difference 'Image.count' do
-      post images_path, params: { image: { link: image_url } }
-      assert_equal image_url, Image.last.link
+    image = Image.create(link: image_url)
+
+    get images_path(Image.last.id)
+
+    assert_select 'img' do |img|
+      assert_equal image.link, img[0][:src]
     end
+  end
+
+  def test_show__with_tags
+    image_url = 'https://www.appfolio.com/_nuxt/img/markets-residential@2x_1080px-min.ae96531.png'
+    tags_list = %w[tag1 tag2]
+    image = Image.create(link: image_url)
+    image.tag_list.add(tags_list)
+    image.save
+
+    get images_path(Image.last.id)
+
+    assert_select 'span', count: 2
+    assert_select 'span', text: tags_list[0]
   end
 
   def test_index

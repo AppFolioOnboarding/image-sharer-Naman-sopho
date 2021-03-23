@@ -7,7 +7,7 @@ class ImagesController < ActionController::Base
 
   def create
     @image = Image.new(link: params[:image][:link])
-    @error = ''
+    @image.tag_list.add(params[:image][:tag_list].split(',')) unless params[:image][:tag_list].nil?
 
     if @image.save
       redirect_to @image
