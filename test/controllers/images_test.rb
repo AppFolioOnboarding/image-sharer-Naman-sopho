@@ -5,7 +5,6 @@ class ImagesControllerTest < ActionDispatch::IntegrationTest
     get new_image_path
     assert_response :success
 
-    # check form is correctly displayed
     assert_select 'input', id: 'image_link'
     assert_select 'input', name: 'commit'
   end
@@ -13,7 +12,7 @@ class ImagesControllerTest < ActionDispatch::IntegrationTest
   def test_create
     image_url = 'https://www.appfolio.com/_nuxt/img/markets-residential@2x_1080px-min.ae96531.png'
     assert_difference 'Image.count' do
-      post images_path, params: { image: { link: image_url} }
+      post images_path, params: { image: { link: image_url } }
       assert_redirected_to image_path(Image.last)
     end
   end
@@ -84,14 +83,13 @@ class ImagesControllerTest < ActionDispatch::IntegrationTest
   def test_show__with_tags
     image_url = 'https://www.appfolio.com/_nuxt/img/markets-residential@2x_1080px-min.ae96531.png'
     tags_list = %w[tag1 tag2]
-    image = Image.create(link: image_url)
-    image.tag_list.add(tags_list)
-    image.save
+    Image.create(link: image_url, tag_list: tags_list)
 
     get images_path(Image.last.id)
 
     assert_select 'span', count: 2
     assert_select 'span', text: tags_list[0]
+    assert_select 'a', href: "/images?tag=#{tags_list[0]}"
   end
 
   def test_index
@@ -104,6 +102,37 @@ class ImagesControllerTest < ActionDispatch::IntegrationTest
     assert_select 'img', count: 2 do |image|
       assert_equal image1.link, image[0][:src]
     end
+    assert_select 'h3', text: 'Image Sharer'
+    assert_select 'a[href=?]', '/images/new'
+  end
+
+  def test_index__with_tags
+    Image.create(link: 'https://www.appfolio.com/_nuxt/img/markets-residential@2x_1080px-min.ae96531.png',
+                 tag_list: %w[tag01 tag02])
+    tags_list = %w[tag1 tag2]
+    image1 = Image.create(link: 'https://www.appfolio.com/_nuxt/img/product-communication-and-service_480px-min.4111e75.png',
+                          tag_list: tags_list)
+
+    get "/images?tag=tag1"
+
+    assert_response :success
+    assert_select 'img', count: 1 do |image|
+      assert_equal image1.link, image[0][:src]
+    end
+    assert_select 'h3', text: 'Image Sharer'
+    assert_select 'a[href=?]', '/images/new'
+  end
+
+  def test_index__non_existent_tag
+    Image.create(link: 'https://www.appfolio.com/_nuxt/img/markets-residential@2x_1080px-min.ae96531.png',
+                 tag_list: %w[tag01 tag02])
+    Image.create(link: 'https://www.appfolio.com/_nuxt/img/product-communication-and-service_480px-min.4111e75.png',
+                 tag_list: %w[tag1 tag2])
+
+    get '/images?tag=random_tag'
+
+    assert_response :success
+    assert_select 'img', count: 0
     assert_select 'h3', text: 'Image Sharer'
     assert_select 'a[href=?]', '/images/new'
   end

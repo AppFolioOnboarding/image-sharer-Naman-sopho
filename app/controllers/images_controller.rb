@@ -6,8 +6,7 @@ class ImagesController < ActionController::Base
   end
 
   def create
-    @image = Image.new(link: params[:image][:link])
-    @image.tag_list.add(params[:image][:tag_list].split(',')) unless params[:image][:tag_list].nil?
+    @image = Image.new(image_params)
 
     if @image.save
       redirect_to @image
@@ -22,6 +21,16 @@ class ImagesController < ActionController::Base
   end
 
   def index
-    @images = Image.order('created_at DESC')
+    @images = if params[:tag]
+                Image.tagged_with(params[:tag])
+              else
+                Image.order('created_at DESC')
+              end
+  end
+
+  private
+
+  def image_params
+    params.require(:image).permit(:link, :tag_list)
   end
 end
