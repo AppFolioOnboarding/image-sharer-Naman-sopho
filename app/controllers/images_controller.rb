@@ -28,6 +28,11 @@ class ImagesController < ActionController::Base
               end
   end
 
+  def destroy
+    Image.destroy(params[:id])
+    redirect_to images_path
+  end
+
   private
 
   def image_params
