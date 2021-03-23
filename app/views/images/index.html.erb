@@ -7,11 +7,17 @@
     <% @images.each do |image| %>
       <tr>
         <td>
-          <img class="p-4" src="<%= image.link %>"/>
-          <div>
+          <div class="col-md-12">
+            <img class="p-4" src="<%= image.link %>"/>
+          </div>
+          <div class="col-md-4">
             <% image.tag_list.each do |tag| %>
               <span> <%= link_to tag, images_path(tag: tag) %> </span>
             <% end %>
+          </div>
+          <div class="col-md-4">
+            <%= button_to "Delete Image", { action: "destroy", id: image.id }, method: :delete,
+                          data: { confirm: "Are you sure?" } %>
           </div>
         </td>
       </tr>
